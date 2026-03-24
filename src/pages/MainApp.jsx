@@ -5,6 +5,7 @@ import { greetings } from "@/const/greetings";
 import { generateResponse } from "@/modules/generate-response";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { callFunction } from "tauri-plugin-python-api";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
@@ -15,7 +16,13 @@ const MainApp = () => {
 
   useEffect(() => {
     setMounted(true);
-    setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
+    // setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
+
+    const test = async () => {
+      let content = await callFunction("greet_python", []);
+      return content;
+    };
+    setRandomGreeting(test());
   }, []);
 
   const handleSubmit = async () => {
@@ -23,7 +30,10 @@ const MainApp = () => {
 
     try {
       setIsLoading(true);
-      const correctedSentence = await generateResponse(userInput);
+      // Call python backend to communicate with Groq
+      const correctedSentence = await callFunction("generate_response", [
+        userInput,
+      ]);
       setResults(correctedSentence);
       setUserInput(correctedSentence);
     } catch (error) {
