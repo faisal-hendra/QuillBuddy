@@ -1,3 +1,4 @@
+from email import message
 import os
 from dotenv import load_dotenv
 from groq import Groq
@@ -9,7 +10,7 @@ _tauri_plugin_functions = ["greet_python", "generate_response"]  # both in one l
 def greet_python():
     return str("Hello from python bro!")
 
-def generate_response(user_input: str) -> str:
+def generate_response(user_input: str, mode: str) -> str:
     client = Groq(api_key=os.environ.get("GROQ_API_KEY")) 
 
     try:
@@ -20,7 +21,19 @@ def generate_response(user_input: str) -> str:
                     "content": (
                         "You are a grammar correction assistant. Return only the corrected "
                         "version of the text provided, or the original text if no changes "
-                        "are needed. Do not include explanations."
+                        "are needed. Do not include explanations. "
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": user_input,
+                },
+            ] if mode == "correction" else [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a paraphraser assistant. Return only the paraphrased "
+                        "version of the text provided. Do not include explanations."
                     ),
                 },
                 {
@@ -32,6 +45,7 @@ def generate_response(user_input: str) -> str:
         )
 
         result = chat_completion.choices[0].message.content or ""
+        print("mode: " + mode)
         print(result)
         return result.strip()
 

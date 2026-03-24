@@ -5,13 +5,21 @@ import { greetings } from "@/const/greetings";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { callFunction } from "tauri-plugin-python-api";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
-  const [results, setResults] = useState([]);
   const [randomGreeting, setRandomGreeting] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [mode, setMode] = useState("correction");
 
   useEffect(() => {
     setMounted(true);
@@ -26,8 +34,8 @@ const MainApp = () => {
       // Call python backend to communicate with Groq
       const correctedSentence = await callFunction("generate_response", [
         userInput,
+        mode,
       ]);
-      setResults(correctedSentence);
       setUserInput(correctedSentence);
     } catch (error) {
       console.error("Failed to generate response:", error);
@@ -77,9 +85,21 @@ const MainApp = () => {
             />
             <div className="flex items-center justify-between px-5 py-3 bg-secondary/40 border-t border-border/40">
               <span className="text-xs text-muted-foreground/70">
-                {isLoading
-                  ? "Processing, hang tight..."
-                  : userInput.length > 0 && `${userInput.length} characters`}
+                {isLoading ? (
+                  "Processing, hang tight..."
+                ) : (
+                  <Select value={mode} onValueChange={(e) => setMode(e)}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="correction">Correction</SelectItem>
+                        <SelectItem value="paraphrase">Paraphrase</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
               </span>
               <Button
                 onClick={handleSubmit}
