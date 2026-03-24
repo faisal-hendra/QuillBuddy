@@ -1,20 +1,21 @@
-import os
-from dotenv import load_dotenv
 from groq import Groq
 from google import genai
 from google.genai import types
-
-load_dotenv()  # call this once at the top to load .env
 
 _tauri_plugin_functions = ["greet_python", "generate_response",] 
 
 def greet_python():
     return str("Hello from python bro!")
 
-def generate_response(user_input: str, mode: str, provider: str) -> str:
+def generate_response(data) -> str:
+    user_input = data.get("user_input")
+    mode = data.get("mode")
+    provider = data.get("provider")
+    api_key = data.get("api_key")
+
     # Groq
     if provider == "groq":
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY")) 
+        client = Groq(api_key=api_key) 
 
         try:
             chat_completion = client.chat.completions.create(
@@ -60,7 +61,7 @@ def generate_response(user_input: str, mode: str, provider: str) -> str:
     # Gemini
     elif provider == "gemini":
         try:
-            client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+            client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 config=types.GenerateContentConfig(

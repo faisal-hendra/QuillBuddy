@@ -23,6 +23,11 @@ import {
 } from "@/components/ui/boxless-select";
 import GeminiLogo from "@/components/logos/GeminiLogo";
 import GroqLogo from "@/components/logos/GroqLogo";
+import Database from "@tauri-apps/plugin-sql";
+import { Link, useLocation } from "react-router-dom";
+import { CogIcon } from "lucide-react";
+import useSound from "use-sound";
+import toggle from "../assets/sounds/toggle-on.wav";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
@@ -31,37 +36,56 @@ const MainApp = () => {
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
   const [provider, setProvider] = useState("groq");
+  const [userProfile, setUserProfile] = useState([]);
+  const [playSound] = useSound(toggle, {
+    volume: 0.1,
+  });
+
+  async function getProfile() {
+    try {
+      const db = await Database.load("sqlite:profile.db");
+      const profile = await db.select("SELECT * FROM profile");
+      setUserProfile(profile);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
+    getProfile();
     setMounted(true);
     setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
   }, []);
 
   const handleSubmit = async () => {
     if (!userInput.trim() || isLoading) return;
-
     try {
       setIsLoading(true);
       let correctedSentence;
-      // Call python backend to communicate with Groq
-      if (provider === "groq") {
+      const apiKey = (userProfile?.find(
+        (p) => p.provider === `${provider}`,
+      )).api_key;
+
+      if (apiKey !== null || apiKey !== undefined) {
         correctedSentence = await callFunction("generate_response", [
-          userInput,
-          mode,
-          provider,
+          {
+            user_input: userInput,
+            mode: mode,
+            provider: provider,
+            api_key: apiKey,
+          },
         ]);
-      } else if (provider === "gemini") {
-        correctedSentence = await callFunction("generate_response", [
-          userInput,
-          mode,
-          provider,
-        ]);
+        setUserInput(correctedSentence);
+      } else {
+        console.error(
+          `Looks like you haven't configured API ket for ${provider.charAt(0).toUpperCase}${provider.substring(1)} `,
+        );
       }
-      setUserInput(correctedSentence);
     } catch (error) {
       console.error("Failed to generate response:", error);
     } finally {
       setIsLoading(false);
+      setIsDone(true);
     }
   };
 
@@ -77,18 +101,24 @@ const MainApp = () => {
       <div className="max-w-2xl mx-auto px-6 py-6">
         <header
           className={cn(
-            "mb-12 transition-all duration-700 ease-out-quint",
+            "flex grid grid-cols-10 mb-12 items-baseline transition-all duration-700 ease-out-quint",
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
           )}
         >
-          <h1 className="font-heading text-2xl text-foreground tracking-tight mb-3">
-            {randomGreeting}
-          </h1>
-          <p className="text-muted-foreground text-base">
-            Paste your text below and I'll help polish it up.
-          </p>
+          <div className="col-span-8">
+            <h1 className="font-heading text-2xl text-foreground tracking-tight mb-3">
+              {randomGreeting}
+            </h1>
+            <p className="text-muted-foreground text-base">
+              Paste your text below and I'll help polish it up.
+            </p>
+          </div>
+          <div className="flex col-span-2 justify-end">
+            <Link to={"/config"}>
+              <CogIcon className="opacity-10 hover:opacity-100 transition-all hover:cursor-pointer hover:rotate-64 animate-ease-out hover:scale-130" />
+            </Link>
+          </div>
         </header>
-
         <div
           className={cn(
             "mb-16 transition-all duration-700 ease-out-quint [transition-delay:150ms]",
@@ -152,7 +182,13 @@ const MainApp = () => {
                 )}
               </span>
               <Button
-                onClick={handleSubmit}
+                onClick={() => {
+                  handleSubmit();
+                  while (isLoading === true) {
+                    return null;
+                  }
+                  playSound();
+                }}
                 disabled={!userInput.trim() || isLoading}
                 className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-all"
                 size="sm"
