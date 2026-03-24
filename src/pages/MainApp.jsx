@@ -21,6 +21,8 @@ import {
   BoxlessSelectTrigger,
   BoxlessSelectValue,
 } from "@/components/ui/boxless-select";
+import GeminiLogo from "@/components/logos/GeminiLogo";
+import GroqLogo from "@/components/logos/GroqLogo";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
@@ -112,13 +114,19 @@ const MainApp = () => {
                       value={provider}
                       onValueChange={(e) => setProvider(e)}
                     >
-                      <SelectTrigger className="w-[100px]">
+                      <SelectTrigger className="w-[110px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="groq">Groq</SelectItem>
-                          <SelectItem value="gemini">Gemini</SelectItem>
+                          <SelectItem value="groq">
+                            <GroqLogo />
+                            Groq
+                          </SelectItem>
+                          <SelectItem value="gemini">
+                            <GeminiLogo />
+                            Gemini
+                          </SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
