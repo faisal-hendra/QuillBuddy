@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "quillbuddy",
+        "title": "QuillBuddy",
         "width": 800,
-        "height": 600
+        "height": 500
       }
     ],
     "security": {

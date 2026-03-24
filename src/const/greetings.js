@@ -6,7 +6,7 @@ export const greetings = [
   "Welcome! Glad you stopped by.",
   "Hey, you made it! What are we doing today?",
   "Good to have you back! Let's pick up where we left off.",
-  "Hey hey! The app's been waiting for you 😄",
+  "Hey hey! We've been waiting for you 😄",
   "Welcome in! Take a second, get comfy.",
   "Hey! Let's make today a productive one 🚀",
 ];
