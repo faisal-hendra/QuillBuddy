@@ -15,13 +15,7 @@ const MainApp = () => {
 
   useEffect(() => {
     setMounted(true);
-    // setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
-
-    const test = async () => {
-      let content = await callFunction("greet_python", []);
-      return content;
-    };
-    setRandomGreeting(test());
+    setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
   }, []);
 
   const handleSubmit = async () => {
@@ -83,7 +77,9 @@ const MainApp = () => {
             />
             <div className="flex items-center justify-between px-5 py-3 bg-secondary/40 border-t border-border/40">
               <span className="text-xs text-muted-foreground/70">
-                {userInput.length > 0 && `${userInput.length} characters`}
+                {isLoading
+                  ? "Processing, hang tight..."
+                  : userInput.length > 0 && `${userInput.length} characters`}
               </span>
               <Button
                 onClick={handleSubmit}
