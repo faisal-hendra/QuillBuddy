@@ -2,7 +2,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { greetings } from "@/const/greetings";
-import { generateResponse } from "@/modules/generate-response";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { callFunction } from "tauri-plugin-python-api";
