@@ -13,6 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  BoxlessSelect,
+  BoxlessSelectContent,
+  BoxlessSelectGroup,
+  BoxlessSelectItem,
+  BoxlessSelectTrigger,
+  BoxlessSelectValue,
+} from "@/components/ui/boxless-select";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
@@ -20,6 +28,7 @@ const MainApp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
+  const [provider, setProvider] = useState("groq");
 
   useEffect(() => {
     setMounted(true);
@@ -31,11 +40,21 @@ const MainApp = () => {
 
     try {
       setIsLoading(true);
+      let correctedSentence;
       // Call python backend to communicate with Groq
-      const correctedSentence = await callFunction("generate_response", [
-        userInput,
-        mode,
-      ]);
+      if (provider === "groq") {
+        correctedSentence = await callFunction("generate_response", [
+          userInput,
+          mode,
+          provider,
+        ]);
+      } else if (provider === "gemini") {
+        correctedSentence = await callFunction("generate_response", [
+          userInput,
+          mode,
+          provider,
+        ]);
+      }
       setUserInput(correctedSentence);
     } catch (error) {
       console.error("Failed to generate response:", error);
@@ -83,22 +102,45 @@ const MainApp = () => {
               className={`min-h-32 border-0 rounded-none resize-none  ${isLoading ? "text-foreground/30" : "text-foreground/90"} placeholder:text-muted-foreground/60 py-4 px-5 text-base leading-relaxed focus-visible:ring-0 focus-visible:ring-offset-0`}
               disabled={isLoading}
             />
-            <div className="flex items-center justify-between px-5 py-3 bg-secondary/40 border-t border-border/40">
-              <span className="text-xs text-muted-foreground/70">
+            <div className="flex items-center justify-between items-center px-5 py-3 bg-secondary/40 border-t border-border/40">
+              <span className="text-xs text-muted-foreground/70 flex gap-2">
                 {isLoading ? (
                   "Processing, hang tight..."
                 ) : (
-                  <Select value={mode} onValueChange={(e) => setMode(e)}>
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="correction">Correction</SelectItem>
-                        <SelectItem value="paraphrase">Paraphrase</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select
+                      value={provider}
+                      onValueChange={(e) => setProvider(e)}
+                    >
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="groq">Groq</SelectItem>
+                          <SelectItem value="gemini">Gemini</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <BoxlessSelect
+                      value={mode}
+                      onValueChange={(e) => setMode(e)}
+                    >
+                      <BoxlessSelectTrigger className="w-[120px]">
+                        <BoxlessSelectValue />
+                      </BoxlessSelectTrigger>
+                      <BoxlessSelectContent>
+                        <BoxlessSelectGroup>
+                          <BoxlessSelectItem value="correction">
+                            Correction
+                          </BoxlessSelectItem>
+                          <BoxlessSelectItem value="paraphrase">
+                            Paraphrase
+                          </BoxlessSelectItem>
+                        </BoxlessSelectGroup>
+                      </BoxlessSelectContent>
+                    </BoxlessSelect>
+                  </div>
                 )}
               </span>
               <Button
