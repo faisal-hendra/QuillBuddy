@@ -2,6 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import MainApp from "./pages/MainApp";
 
 function App() {
   async function greet() {
@@ -10,8 +11,10 @@ function App() {
   }
 
   return (
-    <main className="container">
-      <h1 className="text-4xl">Test</h1>
+    <main className="container justify-center">
+      <div className="bg-background w-screen p-6">
+        <MainApp />
+      </div>
     </main>
   );
 }
