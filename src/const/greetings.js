@@ -9,4 +9,7 @@ export const greetings = [
   "Hey hey! We've been waiting for you 😄",
   "Welcome in! Take a second, get comfy.",
   "Hey! Let's make today a productive one 🚀",
+  "Hey! You're looking sharp today 💎",
+  "Hey! Let's make a difference today 🌟",
+  "Hey, Let's get to work!",
 ];

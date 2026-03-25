@@ -85,7 +85,6 @@ const MainApp = () => {
       console.error("Failed to generate response:", error);
     } finally {
       setIsLoading(false);
-      setIsDone(true);
     }
   };
 
