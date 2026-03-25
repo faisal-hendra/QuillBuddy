@@ -21,13 +21,12 @@ import {
   BoxlessSelectTrigger,
   BoxlessSelectValue,
 } from "@/components/ui/boxless-select";
-import GeminiLogo from "@/components/logos/GeminiLogo";
-import GroqLogo from "@/components/logos/GroqLogo";
 import Database from "@tauri-apps/plugin-sql";
 import { Link, useLocation } from "react-router-dom";
 import { CogIcon } from "lucide-react";
 import useSound from "use-sound";
 import toggle from "../assets/sounds/toggle-on.wav";
+import { PROVIDERS } from "@/const/providers";
 
 const MainApp = () => {
   const [userInput, setUserInput] = useState("");
@@ -35,7 +34,7 @@ const MainApp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
-  const [provider, setProvider] = useState("groq");
+  const [provider, setProvider] = useState(PROVIDERS[0].value);
   const [userProfile, setUserProfile] = useState([]);
   const [playSound] = useSound(toggle, {
     volume: 0.1,
@@ -143,19 +142,20 @@ const MainApp = () => {
                       value={provider}
                       onValueChange={(e) => setProvider(e)}
                     >
-                      <SelectTrigger className="w-[110px]">
+                      <SelectTrigger className="min-w-[110px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="groq">
-                            <GroqLogo />
-                            Groq
-                          </SelectItem>
-                          <SelectItem value="gemini">
-                            <GeminiLogo />
-                            Gemini
-                          </SelectItem>
+                          {PROVIDERS.map((p) => {
+                            const Icon = p.icon;
+                            return (
+                              <SelectItem value={p.value}>
+                                <Icon />
+                                {p.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
