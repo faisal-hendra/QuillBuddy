@@ -4,10 +4,7 @@ from google.genai import types
 from cerebras.cloud.sdk import Cerebras
 from openai import OpenAI
     
-_tauri_plugin_functions = ["greet_python", "generate_response",] 
-
-def greet_python():
-    return str("Hello from python bro!")
+_tauri_plugin_functions = ["generate_response"] 
 
 def generate_response(data) -> str:
     user_input = data.get("user_input")

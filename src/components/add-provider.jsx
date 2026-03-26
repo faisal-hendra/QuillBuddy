@@ -4,10 +4,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import {
@@ -21,10 +18,10 @@ import {
 import { PROVIDERS } from "@/const/providers";
 import { useProfile } from "@/store/profile";
 import { PlusIcon, EyeIcon, EyeClosedIcon } from "lucide-react";
-import _ from "lodash";
 import { Input } from "./ui/input";
 import { Label } from "@/components/ui/label";
 import Database from "@tauri-apps/plugin-sql";
+import _ from "lodash";
 
 function AddProvider() {
   const profile = useProfile((state) => state.profile);
@@ -44,7 +41,6 @@ function AddProvider() {
     setAvailableOptions(x);
   };
 
-  // Function to handle actions when the dialog is opened or closed
   const handleOpenChange = (open) => {
     setIsOpen(open);
     if (open) {
@@ -53,7 +49,6 @@ function AddProvider() {
     }
   };
 
-  //
   async function addProvider() {
     try {
       const db = await Database.load("sqlite:profile.db");
@@ -61,7 +56,7 @@ function AddProvider() {
         `INSERT INTO profile (provider, api_key) VALUES ("${selectedProvider}", "${apiKey}");`,
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       refreshProfile();
     }
@@ -73,7 +68,7 @@ function AddProvider() {
       const _profile = await db.select("SELECT * FROM profile");
       setProfile(_profile);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -82,12 +77,13 @@ function AddProvider() {
   };
 
   const handleSubmit = () => {
-    hasWhiteSpace(apiKey) ? console.log("Invalid API Address") : addProvider();
+    hasWhiteSpace(apiKey)
+      ? console.error("Invalid API Address")
+      : addProvider();
     setIsOpen(false);
   };
 
   useEffect(() => {
-    console.log("useEffect fired with isOpen:", isOpen);
     if (isOpen) {
       determineAvailableOption();
     }

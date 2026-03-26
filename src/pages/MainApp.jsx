@@ -22,7 +22,7 @@ import {
   BoxlessSelectValue,
 } from "@/components/ui/boxless-select";
 import Database from "@tauri-apps/plugin-sql";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { CogIcon } from "lucide-react";
 import useSound from "use-sound";
 import toggle from "../assets/sounds/toggle-on.wav";
@@ -42,7 +42,6 @@ const MainApp = () => {
     volume: 0.1,
   });
 
-  //
   const profile = useProfile((state) => state.profile);
   const setProfile = useProfile((state) => state.setProfile);
 
@@ -50,7 +49,6 @@ const MainApp = () => {
   let isMacOS;
   const fetchOsName = async () => {
     const os = await invoke("get_os_name");
-    console.log("OS FROM RUST: ", os);
     setUserOS(os);
     isMacOS = os === "macos";
   };
@@ -65,7 +63,7 @@ const MainApp = () => {
       const _profile = await db.select("SELECT * FROM profile");
       setProfile(_profile);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 

@@ -1,22 +1,15 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
-import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PlusIcon, PencilIcon, TrashIcon, ChevronLeft } from "lucide-react";
+import { PencilIcon, TrashIcon, ChevronLeft } from "lucide-react";
 import { useProfile } from "@/store/profile";
 import { Card } from "@/components/ui/card";
 import { PROVIDERS } from "@/const/providers";
 import { Separator } from "@/components/ui/separator";
 import AddProvider from "@/components/add-provider";
-import { callFunction } from "tauri-plugin-python-api";
 
 function Configuration() {
-  //
   const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
-
-  useEffect(() => {
-    console.log("From config page: ", profile);
-  }, [profile]);
 
   return (
     <div className="min-h-screen bg-background">
