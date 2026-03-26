@@ -31,19 +31,19 @@ import { invoke } from "@tauri-apps/api/core";
 import { useProfile } from "@/store/profile";
 
 const MainApp = () => {
+  const profile = useProfile((state) => state.profile);
+  const setProfile = useProfile((state) => state.setProfile);
+
   const [userOS, setUserOS] = useState("");
   const [userInput, setUserInput] = useState("");
   const [randomGreeting, setRandomGreeting] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
-  const [provider, setProvider] = useState(PROVIDERS[0].value);
+  const [provider, setProvider] = useState("");
   const [playSound] = useSound(toggle, {
     volume: 0.1,
   });
-
-  const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
 
   // Get OS Name
   let isMacOS;
@@ -57,15 +57,16 @@ const MainApp = () => {
     fetchOsName();
   }, []);
 
-  async function getProfile() {
+  const getProfile = async () => {
     try {
       const db = await Database.load("sqlite:profile.db");
       const _profile = await db.select("SELECT * FROM profile");
       setProfile(_profile);
+      setProvider(_profile[0].provider);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   useEffect(() => {
     getProfile();
@@ -164,12 +165,17 @@ const MainApp = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {PROVIDERS.map((p) => {
-                            const Icon = p.icon;
+                          {profile.map((p, index) => {
+                            const providerName = PROVIDERS.find(
+                              (item) => item.value === p.provider,
+                            ).name;
+                            const Icon = PROVIDERS?.find(
+                              (item) => item.value === p.provider,
+                            )?.icon;
                             return (
-                              <SelectItem value={p.value}>
+                              <SelectItem value={p.provider}>
                                 <Icon />
-                                {p.name}
+                                {providerName}
                               </SelectItem>
                             );
                           })}

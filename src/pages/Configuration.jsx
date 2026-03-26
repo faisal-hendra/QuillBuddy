@@ -1,15 +1,38 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { PencilIcon, TrashIcon, ChevronLeft } from "lucide-react";
+import { TrashIcon, ChevronLeft } from "lucide-react";
 import { useProfile } from "@/store/profile";
 import { Card } from "@/components/ui/card";
 import { PROVIDERS } from "@/const/providers";
 import { Separator } from "@/components/ui/separator";
 import AddProvider from "@/components/add-provider";
+import Database from "@tauri-apps/plugin-sql";
 
 function Configuration() {
   const profile = useProfile((state) => state.profile);
+  const setProfile = useProfile((state) => state.setProfile);
+
+  async function removeProvider(id) {
+    try {
+      const db = await Database.load("sqlite:profile.db");
+      db.execute(`DELETE FROM profile WHERE id = ${id}`);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      refreshProfile();
+    }
+  }
+
+  async function refreshProfile() {
+    try {
+      const db = await Database.load("sqlite:profile.db");
+      const _profile = await db.select("SELECT * FROM profile");
+      setProfile(_profile);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,11 +81,14 @@ function Configuration() {
                     </p>
                   </div>
                   <div className="col-span-1 flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-all">
-                    <Button variant="destructive" size="icon">
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => {
+                        removeProvider(p.id);
+                      }}
+                    >
                       <TrashIcon />
-                    </Button>
-                    <Button variant="outline" size="icon">
-                      <PencilIcon />
                     </Button>
                   </div>
                 </div>
