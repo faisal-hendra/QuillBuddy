@@ -9,7 +9,7 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <HashRouter>
-      <div className="bg-background w-screen h-screen p-6 overflow-hidden">
+      <div className="bg-background w-screen h-screen p-6 overflow-hidden select-none">
         <Routes>
           <Route path="/" element={<MainApp />} />
           <Route path="/welcome" element={<WelcomeScreen />} />

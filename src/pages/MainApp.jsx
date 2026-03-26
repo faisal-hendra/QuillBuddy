@@ -28,6 +28,7 @@ import useSound from "use-sound";
 import toggle from "../assets/sounds/toggle-on.wav";
 import { PROVIDERS } from "@/const/providers";
 import { invoke } from "@tauri-apps/api/core";
+import { useProfile } from "@/store/profile";
 
 const MainApp = () => {
   const [userOS, setUserOS] = useState("");
@@ -37,10 +38,13 @@ const MainApp = () => {
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
   const [provider, setProvider] = useState(PROVIDERS[0].value);
-  const [userProfile, setUserProfile] = useState([]);
   const [playSound] = useSound(toggle, {
     volume: 0.1,
   });
+
+  //
+  const profile = useProfile((state) => state.profile);
+  const setProfile = useProfile((state) => state.setProfile);
 
   // Get OS Name
   let isMacOS;
@@ -58,8 +62,8 @@ const MainApp = () => {
   async function getProfile() {
     try {
       const db = await Database.load("sqlite:profile.db");
-      const profile = await db.select("SELECT * FROM profile");
-      setUserProfile(profile);
+      const _profile = await db.select("SELECT * FROM profile");
+      setProfile(_profile);
     } catch (error) {
       console.log(error);
     }
@@ -76,7 +80,7 @@ const MainApp = () => {
     try {
       setIsLoading(true);
       let correctedSentence;
-      const apiKey = (userProfile?.find(
+      const apiKey = (profile?.find(
         (p) => p.provider === `${provider}`,
       )).api_key;
 
@@ -144,7 +148,7 @@ const MainApp = () => {
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type or paste your text here..."
-              className={`min-h-32 border-0 rounded-none resize-none  ${isLoading ? "text-foreground/30" : "text-foreground/90"} placeholder:text-muted-foreground/60 py-4 px-5 text-base leading-relaxed focus-visible:ring-0 focus-visible:ring-offset-0`}
+              className={`min-h-32 border-0 rounded-none resize-none  ${isLoading ? "text-foreground/30" : "text-foreground/90"} placeholder:text-muted-foreground/60 py-4 px-5 text-base leading-relaxed focus-visible:ring-0 focus-visible:ring-offset-0 select-text`}
               disabled={isLoading}
             />
             <div className="flex items-center justify-between items-center px-5 py-3 bg-secondary/40 border-t border-border/40">
