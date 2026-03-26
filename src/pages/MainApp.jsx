@@ -27,8 +27,10 @@ import { CogIcon } from "lucide-react";
 import useSound from "use-sound";
 import toggle from "../assets/sounds/toggle-on.wav";
 import { PROVIDERS } from "@/const/providers";
+import { invoke } from "@tauri-apps/api/core";
 
 const MainApp = () => {
+  const [userOS, setUserOS] = useState("");
   const [userInput, setUserInput] = useState("");
   const [randomGreeting, setRandomGreeting] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +41,19 @@ const MainApp = () => {
   const [playSound] = useSound(toggle, {
     volume: 0.1,
   });
+
+  // Get OS Name
+  let isMacOS;
+  const fetchOsName = async () => {
+    const os = await invoke("get_os_name");
+    console.log("OS FROM RUST: ", os);
+    setUserOS(os);
+    isMacOS = os === "macos";
+  };
+
+  useEffect(() => {
+    fetchOsName();
+  }, []);
 
   async function getProfile() {
     try {
@@ -95,7 +110,7 @@ const MainApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="max-h-screen max-w-screen bg-background">
       <div className="max-w-2xl mx-auto px-6 py-6">
         <header
           className={cn(
@@ -204,7 +219,9 @@ const MainApp = () => {
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground/50 mt-2 text-right">
-            Press ⌘ + Enter to submit
+            {isMacOS
+              ? "Press ⌘ + Enter to submit"
+              : "Press Ctrl + Enter to submit"}
           </p>
         </div>
       </div>
