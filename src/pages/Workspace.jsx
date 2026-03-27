@@ -30,11 +30,9 @@ import { PROVIDERS } from "@/const/providers";
 import { invoke } from "@tauri-apps/api/core";
 import { useProfile } from "@/store/profile";
 
-const MainApp = () => {
+const Workspace = () => {
   const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
 
-  const [userOS, setUserOS] = useState("");
   const [userInput, setUserInput] = useState("");
   const [randomGreeting, setRandomGreeting] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +47,6 @@ const MainApp = () => {
   let isMacOS;
   const fetchOsName = async () => {
     const os = await invoke("get_os_name");
-    setUserOS(os);
     isMacOS = os === "macos";
   };
 
@@ -57,19 +54,8 @@ const MainApp = () => {
     fetchOsName();
   }, []);
 
-  const getProfile = async () => {
-    try {
-      const db = await Database.load("sqlite:profile.db");
-      const _profile = await db.select("SELECT * FROM profile");
-      setProfile(_profile);
-      setProvider(_profile[0].provider);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
-    getProfile();
+    setProvider(profile[0]?.provider);
     setMounted(true);
     setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
   }, []);
@@ -114,6 +100,9 @@ const MainApp = () => {
 
   return (
     <div className="max-h-screen max-w-screen bg-background">
+      {/* <Link to={"/welcome"}>
+        <Button>Test</Button>
+      </Link> */}
       <div className="max-w-2xl mx-auto px-6 py-6">
         <header
           className={cn(
@@ -237,4 +226,4 @@ const MainApp = () => {
   );
 };
 
-export default MainApp;
+export default Workspace;
