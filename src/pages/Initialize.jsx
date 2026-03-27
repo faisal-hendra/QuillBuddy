@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useProfile } from "@/store/profile";
+import { useStoredApiKeys, useOsName } from "@/store/profile";
 import Database from "@tauri-apps/plugin-sql";
 import Workspace from "./Workspace";
-import WelcomeScreen from "./WelcomeScreen";
+import WelcomeScreen from "./Welcome";
+import { invoke } from "@tauri-apps/api/core";
 
 function Initialize() {
-  const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
+  const storedApiKeys = useStoredApiKeys((state) => state.storedApiKeys);
+  const setStoredApiKeys = useStoredApiKeys((state) => state.setStoredApiKeys);
+  const setOsName = useOsName((state) => state.setOsName);
 
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const getProfile = async () => {
+  // Get OS Name
+  const fetchOsName = async () => {
+    const os = await invoke("get_os_name");
+    setOsName(os);
+    console.log("os name : ", os);
+  };
+
+  const fetchApiProviders = async () => {
     try {
       const db = await Database.load("sqlite:profile.db");
-      const _profile = await db.select("SELECT * FROM profile");
-      setProfile(_profile);
+      const apiProviders = await db.select("SELECT * FROM profile");
+      setStoredApiKeys(apiProviders);
     } catch (error) {
       console.error(error);
     } finally {
@@ -23,14 +32,15 @@ function Initialize() {
   };
 
   useEffect(() => {
-    getProfile();
+    fetchOsName();
+    fetchApiProviders();
   }, []);
 
   if (!isLoaded) {
-    return null;
+    return <div></div>;
   }
 
-  if (profile.length > 0) {
+  if (storedApiKeys.length > 0) {
     return <Workspace />;
   } else {
     return <WelcomeScreen />;

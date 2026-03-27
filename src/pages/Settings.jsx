@@ -2,16 +2,16 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TrashIcon, ChevronLeft } from "lucide-react";
-import { useProfile } from "@/store/profile";
+import { useStoredApiKeys } from "@/store/profile";
 import { Card } from "@/components/ui/card";
 import { PROVIDERS } from "@/const/providers";
 import { Separator } from "@/components/ui/separator";
 import AddProvider from "@/components/add-provider";
 import Database from "@tauri-apps/plugin-sql";
 
-function Configuration() {
-  const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
+function Settings() {
+  const storedApiKeys = useStoredApiKeys((state) => state.storedApiKeys);
+  const setStoredApiKeys = useStoredApiKeys((state) => state.setStoredApiKeys);
 
   async function removeProvider(id) {
     try {
@@ -20,15 +20,15 @@ function Configuration() {
     } catch (error) {
       console.error(error);
     } finally {
-      refreshProfile();
+      refreshApiProviders();
     }
   }
 
-  async function refreshProfile() {
+  async function refreshApiProviders() {
     try {
       const db = await Database.load("sqlite:profile.db");
-      const _profile = await db.select("SELECT * FROM profile");
-      setProfile(_profile);
+      const apiProviders = await db.select("SELECT * FROM profile");
+      setStoredApiKeys(apiProviders);
     } catch (error) {
       console.error(error);
     }
@@ -52,12 +52,12 @@ function Configuration() {
         <div>
           <br />
           <div className="flex justify-between">
-            <p className="font-heading">Available providers:</p>
+            <p>Available providers</p>
             <AddProvider></AddProvider>
           </div>
           <br />
 
-          {profile.map((p) => {
+          {storedApiKeys.map((p) => {
             const providerName = PROVIDERS.find(
               (item) => item.value === p.provider,
             )?.name;
@@ -101,4 +101,4 @@ function Configuration() {
   );
 }
 
-export default Configuration;
+export default Settings;

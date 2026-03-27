@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Workspace from "./pages/Workspace";
-import WelcomeScreen from "./pages/WelcomeScreen";
-import Configuration from "./pages/Configuration";
 import Initialize from "./pages/Initialize";
+import Workspace from "./pages/Workspace";
+import Settings from "./pages/Settings";
+import Welcome from "./pages/Welcome";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 
@@ -14,8 +14,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Routes>
           <Route path="/" element={<Initialize />} />
           <Route path="/workspace" element={<Workspace />} />
-          <Route path="/welcome" element={<WelcomeScreen />} />
-          <Route path="/config" element={<Configuration />} />
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/Settings" element={<Settings />} />
         </Routes>
       </div>
     </HashRouter>

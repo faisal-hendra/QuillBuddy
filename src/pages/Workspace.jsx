@@ -1,7 +1,6 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { greetings } from "@/const/greetings";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { callFunction } from "tauri-plugin-python-api";
@@ -21,20 +20,18 @@ import {
   BoxlessSelectTrigger,
   BoxlessSelectValue,
 } from "@/components/ui/boxless-select";
-import Database from "@tauri-apps/plugin-sql";
 import { Link } from "react-router-dom";
 import { CogIcon } from "lucide-react";
 import useSound from "use-sound";
 import toggle from "../assets/sounds/toggle-on.wav";
 import { PROVIDERS } from "@/const/providers";
-import { invoke } from "@tauri-apps/api/core";
-import { useProfile } from "@/store/profile";
+import { useStoredApiKeys, useOsName } from "@/store/profile";
 
 const Workspace = () => {
-  const profile = useProfile((state) => state.profile);
+  const storedApiKeys = useStoredApiKeys((state) => state.storedApiKeys);
+  const osName = useOsName((state) => state.osName);
 
   const [userInput, setUserInput] = useState("");
-  const [randomGreeting, setRandomGreeting] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState("correction");
@@ -43,21 +40,9 @@ const Workspace = () => {
     volume: 0.1,
   });
 
-  // Get OS Name
-  let isMacOS;
-  const fetchOsName = async () => {
-    const os = await invoke("get_os_name");
-    isMacOS = os === "macos";
-  };
-
   useEffect(() => {
-    fetchOsName();
-  }, []);
-
-  useEffect(() => {
-    setProvider(profile[0]?.provider);
+    setProvider(storedApiKeys[0]?.provider);
     setMounted(true);
-    setRandomGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
   }, []);
 
   const handleSubmit = async () => {
@@ -65,7 +50,7 @@ const Workspace = () => {
     try {
       setIsLoading(true);
       let correctedSentence;
-      const apiKey = (profile?.find(
+      const apiKey = (storedApiKeys?.find(
         (p) => p.provider === `${provider}`,
       )).api_key;
 
@@ -103,7 +88,7 @@ const Workspace = () => {
       {/* <Link to={"/welcome"}>
         <Button>Test</Button>
       </Link> */}
-      <div className="max-w-2xl mx-auto px-6 py-6">
+      <div className="max-w-[1000px] mx-auto px-6 py-6">
         <header
           className={cn(
             "flex grid grid-cols-10 mb-12 items-baseline transition-all duration-700 ease-out-quint",
@@ -111,15 +96,12 @@ const Workspace = () => {
           )}
         >
           <div className="col-span-8">
-            <h1 className="font-heading text-2xl text-foreground tracking-tight mb-3">
-              {randomGreeting}
-            </h1>
-            <p className="text-muted-foreground text-base">
+            <h1 className="text-muted-foreground text-base">
               Paste your text below and I'll help polish it up.
-            </p>
+            </h1>
           </div>
           <div className="flex col-span-2 justify-end">
-            <Link to={"/config"}>
+            <Link to={"/settings"}>
               <CogIcon className="opacity-10 hover:opacity-100 transition-all hover:cursor-pointer hover:rotate-64 animate-ease-out hover:scale-130" />
             </Link>
           </div>
@@ -154,7 +136,7 @@ const Workspace = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {profile.map((p, index) => {
+                          {storedApiKeys.map((p, index) => {
                             const providerName = PROVIDERS.find(
                               (item) => item.value === p.provider,
                             ).name;
@@ -216,7 +198,7 @@ const Workspace = () => {
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground/50 mt-2 text-right">
-            {isMacOS
+            {osName === "macos"
               ? "Press ⌘ + Enter to submit"
               : "Press Ctrl + Enter to submit"}
           </p>

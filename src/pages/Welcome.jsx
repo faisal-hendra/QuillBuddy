@@ -5,13 +5,12 @@ import { SparklesIcon, ArrowRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { Input } from "@/components/ui/input";
-import { useProfile } from "@/store/profile";
+import { useStoredApiKeys } from "@/store/profile";
 import Database from "@tauri-apps/plugin-sql";
 import Workspace from "./Workspace";
 
-function WelcomeScreen() {
-  const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
+function Welcome() {
+  const setStoredApiKeys = useStoredApiKeys((state) => state.setStoredApiKeys);
 
   const [selectedProvider, setSelectedProvider] = useState("");
   const [enteredApiKey, setEnteredApiKey] = useState("");
@@ -28,21 +27,21 @@ function WelcomeScreen() {
     try {
       const db = await Database.load("sqlite:profile.db");
       db.execute(
-        `INSERT INTO profile (provider, api_key) VALUES ("${selectedProvider}", "${enteredApiKey}");`,
+        `INSERT INTO profile (provider, api_key) VALUES ("${selectedProvider}", "${enteredApiKey.trim()}");`,
       );
     } catch (error) {
       console.error(error);
     } finally {
-      refreshProfile();
+      refreshApiProviders();
       setIsSubmitted(true);
     }
   }
 
-  async function refreshProfile() {
+  async function refreshApiProviders() {
     try {
       const db = await Database.load("sqlite:profile.db");
-      const _profile = await db.select("SELECT * FROM profile");
-      setProfile(_profile);
+      const apiProviders = await db.select("SELECT * FROM profile");
+      setStoredApiKeys(apiProviders);
     } catch (error) {
       console.error(error);
     }
@@ -163,7 +162,7 @@ function WelcomeScreen() {
                 })}
               </div>
 
-              <h1 className="font-heading text-2xl">
+              <h1 className="text-2xl">
                 Enter your{" "}
                 <span className="underline underline-offset-2">
                   {PROVIDERS.find((p) => p.value === selectedProvider)?.name}
@@ -205,4 +204,4 @@ function WelcomeScreen() {
   }
 }
 
-export default WelcomeScreen;
+export default Welcome;

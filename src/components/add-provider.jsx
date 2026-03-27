@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROVIDERS } from "@/const/providers";
-import { useProfile } from "@/store/profile";
+import { useStoredApiKeys } from "@/store/profile";
 import { PlusIcon, EyeIcon, EyeClosedIcon } from "lucide-react";
 import { Input } from "./ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,8 +24,8 @@ import Database from "@tauri-apps/plugin-sql";
 import _ from "lodash";
 
 function AddProvider() {
-  const profile = useProfile((state) => state.profile);
-  const setProfile = useProfile((state) => state.setProfile);
+  const storedApiKeys = useStoredApiKeys((state) => state.storedApiKeys);
+  const setStoredApiKeys = useStoredApiKeys((state) => state.setStoredApiKeys);
 
   const [isOpen, setIsOpen] = useState(false);
   const [availableOptions, setAvailableOptions] = useState([]);
@@ -36,7 +36,7 @@ function AddProvider() {
 
   const determineAvailableOption = () => {
     const a = PROVIDERS.map((p) => p.value);
-    const b = profile.map((p) => p.provider);
+    const b = storedApiKeys.map((p) => p.provider);
     const x = _.differenceWith(a, b, _.isEqual);
     setAvailableOptions(x);
   };
@@ -58,15 +58,15 @@ function AddProvider() {
     } catch (error) {
       console.error(error);
     } finally {
-      refreshProfile();
+      refreshApiProviders();
     }
   }
 
-  async function refreshProfile() {
+  async function refreshApiProviders() {
     try {
       const db = await Database.load("sqlite:profile.db");
-      const _profile = await db.select("SELECT * FROM profile");
-      setProfile(_profile);
+      const apiProviders = await db.select("SELECT * FROM profile");
+      setStoredApiKeys(apiProviders);
     } catch (error) {
       console.error(error);
     }
